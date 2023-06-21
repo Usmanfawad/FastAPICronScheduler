@@ -12,7 +12,8 @@ import schedule
 @repeat_every(seconds=5)
 async def root():
     print("Root route initiated!")
-    url = 'http://127.0.0.1:5000/scraper/test'
+    url = "https://www.google.com/"
+    # url = 'http://127.0.0.1:5000/scraper/test'
     x = requests.post(url)
     print("posted")
     print(x.json())
