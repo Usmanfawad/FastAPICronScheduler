@@ -8,8 +8,8 @@ import schedule
 
 
 @app.get("/")
-@app.on_event("startup")
-@repeat_every(seconds=5)
+# @app.on_event("startup")
+# @repeat_every(seconds=5)
 async def root():
     print("Root route initiated!")
     url = "https://www.google.com/"
