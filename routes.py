@@ -19,3 +19,9 @@ async def root():
     print(x.json())
     return {"message": x.json()}
 
+@app.get("/")
+async def heroku_test():
+    return {
+        "Success": "Successful get request"
+    }
+
