@@ -43,7 +43,7 @@ async def mongo_db_post():
     }
 
 #UPDATE MONGODB RECORD
-app.put("/mongDbPut")
+app.put("/mongoDbPut")
 async def mongo_db_put():
     doc_shop = collection.find_one_and_update(
         {"_id": "6494a0f3384ed41dcc250020"},
