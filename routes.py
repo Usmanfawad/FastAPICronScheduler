@@ -27,6 +27,7 @@ async def heroku_test():
         "Success": "Successful get request"
     }
 
+#ADD A RECORD TO MONGODB
 @app.post("/mongoDbPost")
 async def mongo_db_post():
     doc_shop = collection.insert_one({
@@ -39,4 +40,16 @@ async def mongo_db_post():
 
     return {
         "success": "Data entered successfully"
+    }
+
+#UPDATE MONGODB RECORD
+app.put("/mongDbPut")
+async def mongo_db_put():
+    doc_shop = collection.find_one_and_update(
+        {"iShopIpsos": "False"},
+        {"$set": {"iShopIpsos": "True"}}
+    )
+
+    return {
+        "success": "Data updated successfully"
     }
