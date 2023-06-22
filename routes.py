@@ -1,7 +1,9 @@
-from main import app
+from main import *
 
 from fastapi_utils.tasks import repeat_every
 from fastapi_utils.session import FastAPISessionMaker
+
+from config import *
 
 import requests
 import schedule
@@ -16,8 +18,8 @@ async def root():
     # url = 'http://127.0.0.1:5000/scraper/test'
     x = requests.post(url)
     print("posted")
-    print(x.json())
-    return {"message": x.json()}
+    print(x.status_code)
+    return {"message": x.status_code}
 
 @app.get("/heroku_test")
 async def heroku_test():
@@ -25,3 +27,16 @@ async def heroku_test():
         "Success": "Successful get request"
     }
 
+@app.post("/mongoDbPost")
+async def mongo_db_post():
+    doc_shop = collection.insert_one({
+        "iShopIpsos": "False",
+        "customerImpact": "False",
+        "hsBrands": "False",
+        "intelliShop": "False",
+        "iSecretShop": "False",
+    })
+
+    return {
+        "success": "Data entered successfully"
+    }
