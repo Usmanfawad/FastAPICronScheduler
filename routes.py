@@ -43,15 +43,16 @@ async def mongo_db_post():
     }
 
 #UPDATE MONGODB RECORD
-app.put("/mongoDbPut")
+@app.put("/mongoDbPut")
 async def mongo_db_put():
-    doc_shop = collection.find(
-        {"iShopIpsos": "False"}
+    # doc_shop = collection.find(
+    #     {"iShopIpsos": "False"}
+    # )
+    doc_shop_update = collection.find_one_and_update(
+        {"iShopIpsos": "True"},
+        {"$set": {"iShopIpsos": "False"}}
     )
-    doc_shop_update = doc_shop.find_one_and_update(
-        {"_id": doc_shop(id)},
-        {"$set": {"iShopIpsos": "True"}}
-    )
+
 
     return {
         "success": "Data updated successfully"
