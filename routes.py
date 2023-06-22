@@ -46,7 +46,7 @@ async def mongo_db_post():
 app.put("/mongDbPut")
 async def mongo_db_put():
     doc_shop = collection.find_one_and_update(
-        {"iShopIpsos": "False"},
+        {"_id": "6494a0f3384ed41dcc250020"},
         {"$set": {"iShopIpsos": "True"}}
     )
 
