@@ -15,7 +15,7 @@ import schedule
 async def root():
     print("Root route initiated!")
     # url = "https://www.google.com/"
-    url = 'http://127.0.0.1:5000/scraper/customerImpact'
+    url = 'http://mysteryshops.pythonanywhere.com/scraper/customerImpact'
     x = await requests.post(url)
     print("posted")
     print(x.text)
