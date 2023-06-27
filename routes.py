@@ -11,15 +11,15 @@ import schedule
 
 @app.get("/")
 # @app.on_event("startup")
-# @repeat_every(seconds=5)
+# @repeat_every(seconds=20)
 async def root():
     print("Root route initiated!")
-    url = "https://www.google.com/"
-    # url = 'http://127.0.0.1:5000/scraper/test'
-    x = requests.post(url)
+    # url = "https://www.google.com/"
+    url = 'http://127.0.0.1:5000/scraper/customerImpact'
+    x = await requests.post(url)
     print("posted")
-    print(x.status_code)
-    return {"message": x.status_code}
+    print(x.text)
+    return {"message": x.text}
 
 @app.get("/heroku_test")
 async def heroku_test():
