@@ -10,6 +10,7 @@ import asyncio
 import schedule
 
 URL = 'http://127.0.0.1:5000/scraper/customerImpact'
+URL_PROD = 'http://mysteryshops.pythonanywhere.com/scraper/customerImpact'
 
 # async def task():
 #     async with httpx.AsyncClient() as client:
@@ -23,9 +24,10 @@ URL = 'http://127.0.0.1:5000/scraper/customerImpact'
 async def root():
     print("Root route initiated!")
     async with httpx.AsyncClient() as client:
-        resp = await client.get(URL, timeout=None)
+        # resp = await client.get(URL, timeout=None)
+        resp = await client.get(URL_PROD, timeout=None)
         print(resp.json())
-    return {"message": "Success"}
+    return {"result": resp.json()}
 
 @app.get("/heroku_test")
 async def heroku_test():
