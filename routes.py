@@ -5,21 +5,27 @@ from fastapi_utils.session import FastAPISessionMaker
 
 from config import *
 
-import requests
+import httpx
+import asyncio
 import schedule
 
+URL = 'http://127.0.0.1:5000/scraper/customerImpact'
+
+# async def task():
+#     async with httpx.AsyncClient() as client:
+#         resp = await client.get(URL)
+#         shops = resp.text
+#         return shops
 
 @app.get("/")
 # @app.on_event("startup")
 # @repeat_every(seconds=20)
 async def root():
     print("Root route initiated!")
-    # url = "https://www.google.com/"
-    url = 'http://mysteryshops.pythonanywhere.com/scraper/customerImpact'
-    x = await requests.post(url)
-    print("posted")
-    print(x.text)
-    return {"message": x.text}
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(URL, timeout=None)
+        print(resp.json())
+    return {"message": "Success"}
 
 @app.get("/heroku_test")
 async def heroku_test():
