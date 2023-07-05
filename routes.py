@@ -27,7 +27,7 @@ async def root():
         # resp = await client.get(URL, timeout=None)
         resp = await client.get(URL_PROD, timeout=None)
         print(resp.json())
-    return {"result": resp.json()}
+    return {"result": "Success"}
 
 @app.get("/heroku_test")
 async def heroku_test():
