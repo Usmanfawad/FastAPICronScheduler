@@ -9,8 +9,11 @@ import httpx
 import asyncio
 import schedule
 
-URL = 'http://127.0.0.1:5000/scraper/customerImpact'
-URL_PROD = 'http://mysteryshops.pythonanywhere.com/scraper/customerImpact'
+URL_CUSTOMER_IMPACT = 'http://127.0.0.1:5000/scraper/customerImpact'
+URL_ISHOP_IPSOS = 'http://127.0.0.1:5000/scraper/iShopIpsos'
+
+URL_PROD_CUSTOMER_IMPACT = 'http://mysteryshops.pythonanywhere.com/scraper/customerImpact'
+URL_PROD_ISHOP_IPSOS = 'http://mysteryshops.pythonanywhere.com/scraper/iShopIpsos'
 
 # async def task():
 #     async with httpx.AsyncClient() as client:
@@ -28,12 +31,12 @@ async def root():
 @app.get("/customer_impact")
 @app.on_event("startup")
 @repeat_every(seconds=180)
-async def root():
+async def customer_impact():
     if not CUSTOMER_IMPACT_FLAG:
         print("Root route initiated!")
         CUSTOMER_IMPACT_FLAG = True
         async with httpx.AsyncClient() as client:
-            resp = await client.get(URL, timeout=None)
+            resp = await client.get(URL_PROD_CUSTOMER_IMPACT, timeout=None)
             # resp = await client.get(URL_PROD, timeout=None)
             send_message("+923352839515", "-----------Customer Impact Alert-----------")
             all_jobs = resp.json()["Customer Impact Jobs"]
@@ -50,12 +53,12 @@ async def root():
 @app.get("/ishop_ipsos")
 @app.on_event("startup")
 @repeat_every(seconds=160)
-async def root():
+async def ishop_ipsos():
     if not ISHOP_IPSOS_FLAG:
         print("Root route initiated!")
         ISHOP_IPSOS_FLAG = True
         async with httpx.AsyncClient() as client:
-            resp = await client.get(URL, timeout=None)
+            resp = await client.get(URL_PROD_ISHOP_IPSOS, timeout=None)
             # resp = await client.get(URL_PROD, timeout=None)
             send_message("+923352839515", "-----------Ishop Ipsos Alert-----------")
             all_jobs = resp.json()["IShop Ipsos Jobs"]
