@@ -1,9 +1,9 @@
 from main import *
+from config import *
+from ultraMessage import *
 
 from fastapi_utils.tasks import repeat_every
 from fastapi_utils.session import FastAPISessionMaker
-
-from config import *
 
 import httpx
 import asyncio
@@ -18,22 +18,56 @@ URL_PROD = 'http://mysteryshops.pythonanywhere.com/scraper/customerImpact'
 #         shops = resp.text
 #         return shops
 
+CUSTOMER_IMPACT_FLAG = False
+ISHOP_IPSOS_FLAG = False
+
 @app.get("/")
+async def root():
+    return {"result": "Success"}
+
+@app.get("/customer_impact")
 # @app.on_event("startup")
 # @repeat_every(seconds=20)
 async def root():
-    print("Root route initiated!")
-    async with httpx.AsyncClient() as client:
-        # resp = await client.get(URL, timeout=None)
-        resp = await client.get(URL_PROD, timeout=None)
-        print(resp.json())
-    return {"result": "Success"}
+    if not CUSTOMER_IMPACT_FLAG:
+        print("Root route initiated!")
+        CUSTOMER_IMPACT_FLAG = True
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(URL, timeout=None)
+            # resp = await client.get(URL_PROD, timeout=None)
+            send_message("+923352839515", "-----------Customer Impact Alert-----------")
+            all_jobs = resp.json()["Customer Impact Jobs"]
+            print(all_jobs)
+            job_string = ""
+            for k,v in all_jobs.items():
+                job_string += f"Address: {k} Company name: {v['Company name']} Compensation: {v['Compensation']}\n"
+                print(job_string)
+            send_message("+923352839515", job_string)
 
-@app.get("/heroku_test")
-async def heroku_test():
-    return {
-        "Success": "Successful get request"
-    }
+        return {"result": "Success"}
+    return {"result": "Worker busy"}
+
+@app.get("/ishop_ipsos")
+# @app.on_event("startup")
+# @repeat_every(seconds=20)
+async def root():
+    if not ISHOP_IPSOS_FLAG:
+        print("Root route initiated!")
+        ISHOP_IPSOS_FLAG = True
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(URL, timeout=None)
+            # resp = await client.get(URL_PROD, timeout=None)
+            send_message("+923352839515", "-----------Ishop Ipsos Alert-----------")
+            all_jobs = resp.json()["IShop Ipsos Jobs"]
+            print(all_jobs)
+            job_string = ""
+            for k,v in all_jobs.items():
+                job_string += f"Address: {k} Company name: {v['Company name']} Compensation: {v['Compensation']}\n"
+            send_message("+923352839515", job_string)
+
+        return {"result": "Success"}
+    return {"result": "Worker busy"}
+
 
 #ADD A RECORD TO MONGODB
 @app.post("/mongoDbPost")
@@ -60,7 +94,6 @@ async def mongo_db_put():
         {"iShopIpsos": "True"},
         {"$set": {"iShopIpsos": "False"}}
     )
-
 
     return {
         "success": "Data updated successfully"
