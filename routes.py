@@ -26,8 +26,8 @@ async def root():
     return {"result": "Success"}
 
 @app.get("/customer_impact")
-# @app.on_event("startup")
-# @repeat_every(seconds=20)
+@app.on_event("startup")
+@repeat_every(seconds=180)
 async def root():
     if not CUSTOMER_IMPACT_FLAG:
         print("Root route initiated!")
@@ -48,8 +48,8 @@ async def root():
     return {"result": "Worker busy"}
 
 @app.get("/ishop_ipsos")
-# @app.on_event("startup")
-# @repeat_every(seconds=20)
+@app.on_event("startup")
+@repeat_every(seconds=160)
 async def root():
     if not ISHOP_IPSOS_FLAG:
         print("Root route initiated!")
