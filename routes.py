@@ -46,7 +46,7 @@ async def customer_impact():
                 job_string += f"Address: {k} Company name: {v['Company name']} Compensation: {v['Compensation']}\n"
                 print(job_string)
             send_message("+923352839515", job_string)
-
+        CUSTOMER_IMPACT_FLAG = False
         return {"result": "Success"}
     return {"result": "Worker busy"}
 
@@ -67,7 +67,7 @@ async def ishop_ipsos():
             for k,v in all_jobs.items():
                 job_string += f"Address: {k} Company name: {v['Company name']} Compensation: {v['Compensation']}\n"
             send_message("+923352839515", job_string)
-
+        ISHOP_IPSOS_FLAG = False
         return {"result": "Success"}
     return {"result": "Worker busy"}
 
