@@ -52,7 +52,7 @@ async def customer_impact():
     print("Root route initiated!")
     WORKER_THREAD = True
     async with httpx.AsyncClient() as client:
-        resp = await client.get(URL_CUSTOMER_IMPACT, timeout=None)
+        resp = await client.get(URL_PROD_CUSTOMER_IMPACT, timeout=None)
         # resp = await client.get(URL_PROD_CUSTOMER_IMPACT, timeout=None)
         send_message("+923352839515", "-----------Customer Impact Alert-----------")
         all_jobs = resp.json()["Customer Impact Jobs"]
@@ -77,7 +77,7 @@ async def ishop_ipsos():
     print("Root route initiated!")
     WORKER_THREAD = True
     async with httpx.AsyncClient() as client:
-        resp = await client.get(URL_ISHOP_IPSOS, timeout=None)
+        resp = await client.get(URL_PROD_ISHOP_IPSOS, timeout=None)
         # resp = await client.get(URL_PROD_ISHOP_IPSOS, timeout=None)
         send_message("+923352839515", "-----------Ishop Ipsos Alert-----------")
         all_jobs = resp.json()["IShop Ipsos Jobs"]
