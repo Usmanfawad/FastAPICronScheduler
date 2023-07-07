@@ -2,8 +2,8 @@ from main import *
 from config import *
 from ultraMessage import *
 
-from fastapi_utils.tasks import repeat_every
 from fastapi_utils.session import FastAPISessionMaker
+from fastapi_utils.tasks import repeat_every
 
 import httpx
 import asyncio
@@ -21,55 +21,77 @@ URL_PROD_ISHOP_IPSOS = 'http://mysteryshops.pythonanywhere.com/scraper/iShopIpso
 #         shops = resp.text
 #         return shops
 
-CUSTOMER_IMPACT_FLAG = False
-ISHOP_IPSOS_FLAG = False
+WORKER_STACK = ["customerImpact","iShopIpsos"]
+WORKER_THREAD = False
 
+@app.on_event("startup")
+@repeat_every(seconds=30)
 @app.get("/")
 async def root():
+    if not WORKER_THREAD:
+        print("Here")
+        print(WORKER_STACK)
+        print(WORKER_THREAD)
+        if WORKER_STACK[0] == "customerImpact":
+            print("Here")
+            obj = await customer_impact()
+            # asyncio.run(obj)
+        elif WORKER_STACK[0] == "iShopIpsos":
+            obj = await ishop_ipsos()
+            # asyncio.run(obj)
+        return {"status": "Success"}
+    else:
+        print("Worker busy ya'll")
+        return {"status": "Worker busy"}
+
+
+# @app.on_event("startup")
+# @repeat_every(seconds=2)
+# @app.get("/customer_impact")
+async def customer_impact():
+    print("Root route initiated!")
+    WORKER_THREAD = True
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(URL_CUSTOMER_IMPACT, timeout=None)
+        # resp = await client.get(URL_PROD_CUSTOMER_IMPACT, timeout=None)
+        send_message("+923352839515", "-----------Customer Impact Alert-----------")
+        all_jobs = resp.json()["Customer Impact Jobs"]
+        print(all_jobs)
+        job_string = ""
+        for k,v in all_jobs.items():
+            job_string += f"Address: {k} Company name: {v['Company name']} Compensation: {v['Compensation']}\n"
+        print(job_string)
+        send_message("+923352839515", job_string)
+
+    popped = WORKER_STACK.pop(0)
+    WORKER_STACK.append(popped)
+    WORKER_THREAD = False
+
     return {"result": "Success"}
 
-@app.get("/customer_impact")
-@app.on_event("startup")
-@repeat_every(seconds=180)
-async def customer_impact():
-    if not CUSTOMER_IMPACT_FLAG:
-        print("Root route initiated!")
-        CUSTOMER_IMPACT_FLAG = True
-        async with httpx.AsyncClient() as client:
-            resp = await client.get(URL_PROD_CUSTOMER_IMPACT, timeout=None)
-            # resp = await client.get(URL_PROD, timeout=None)
-            send_message("+923352839515", "-----------Customer Impact Alert-----------")
-            all_jobs = resp.json()["Customer Impact Jobs"]
-            print(all_jobs)
-            job_string = ""
-            for k,v in all_jobs.items():
-                job_string += f"Address: {k} Company name: {v['Company name']} Compensation: {v['Compensation']}\n"
-                print(job_string)
-            send_message("+923352839515", job_string)
-        CUSTOMER_IMPACT_FLAG = False
-        return {"result": "Success"}
-    return {"result": "Worker busy"}
 
-@app.get("/ishop_ipsos")
-@app.on_event("startup")
-@repeat_every(seconds=160)
+# @app.on_event("startup")
+# @repeat_every(seconds=5)
+# @app.get("/ishop_ipsos")
 async def ishop_ipsos():
-    if not ISHOP_IPSOS_FLAG:
-        print("Root route initiated!")
-        ISHOP_IPSOS_FLAG = True
-        async with httpx.AsyncClient() as client:
-            resp = await client.get(URL_PROD_ISHOP_IPSOS, timeout=None)
-            # resp = await client.get(URL_PROD, timeout=None)
-            send_message("+923352839515", "-----------Ishop Ipsos Alert-----------")
-            all_jobs = resp.json()["IShop Ipsos Jobs"]
-            print(all_jobs)
-            job_string = ""
-            for k,v in all_jobs.items():
-                job_string += f"Address: {k} Company name: {v['Company name']} Compensation: {v['Compensation']}\n"
-            send_message("+923352839515", job_string)
-        ISHOP_IPSOS_FLAG = False
-        return {"result": "Success"}
-    return {"result": "Worker busy"}
+    print("Root route initiated!")
+    WORKER_THREAD = True
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(URL_ISHOP_IPSOS, timeout=None)
+        # resp = await client.get(URL_PROD_ISHOP_IPSOS, timeout=None)
+        send_message("+923352839515", "-----------Ishop Ipsos Alert-----------")
+        all_jobs = resp.json()["IShop Ipsos Jobs"]
+        print(all_jobs)
+        job_string = ""
+        for k,v in all_jobs.items():
+            job_string += f"Address: {k} Company name: {v['Company name']} Compensation: {v['Compensation']}\n"
+        send_message("+923352839515", job_string)
+
+    popped = WORKER_STACK.pop(0)
+    WORKER_STACK.append(popped)
+    WORKER_THREAD = False
+
+    return {"result": "Success"}
 
 
 #ADD A RECORD TO MONGODB
