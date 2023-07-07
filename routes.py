@@ -25,7 +25,7 @@ WORKER_STACK = ["customerImpact","iShopIpsos"]
 WORKER_THREAD = False
 
 @app.on_event("startup")
-@repeat_every(seconds=30)
+# @repeat_every(seconds=30)
 @app.get("/")
 async def root():
     if not WORKER_THREAD:
