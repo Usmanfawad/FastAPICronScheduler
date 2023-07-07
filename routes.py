@@ -54,7 +54,7 @@ async def customer_impact():
     async with httpx.AsyncClient() as client:
         resp = await client.get(URL_PROD_CUSTOMER_IMPACT, timeout=None)
         # resp = await client.get(URL_PROD_CUSTOMER_IMPACT, timeout=None)
-        send_message("+923352839515", "-----------Customer Impact Alert-----------")
+        # send_message("+923352839515", "-----------Customer Impact Alert-----------")
         all_jobs = resp.json()["Customer Impact Jobs"]
         print(all_jobs)
         job_string = ""
