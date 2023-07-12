@@ -1,5 +1,6 @@
 from main import *
 from config import *
+from utils import *
 from ultraMessage import *
 
 from fastapi_utils.session import FastAPISessionMaker
@@ -21,7 +22,7 @@ URL_PROD_ISHOP_IPSOS = 'http://mysteryshops.pythonanywhere.com/scraper/iShopIpso
 #         shops = resp.text
 #         return shops
 
-WORKER_STACK = ["customerImpact","iShopIpsos"]
+WORKER_STACK = ["iShopIpsos","customerImpact"]
 WORKER_THREAD = False
 
 @app.on_event("startup")
@@ -45,21 +46,22 @@ async def root():
         return {"status": "Worker busy"}
 
 
-# @app.on_event("startup")
-# @repeat_every(seconds=2)
-# @app.get("/customer_impact")
 async def customer_impact():
     print("Root route initiated!")
     WORKER_THREAD = True
     async with httpx.AsyncClient() as client:
         resp = await client.get(URL_PROD_CUSTOMER_IMPACT, timeout=None)
-        # resp = await client.get(URL_PROD_CUSTOMER_IMPACT, timeout=None)
-        # send_message("+923352839515", "-----------Customer Impact Alert-----------")
+        # resp = await client.get(URL_CUSTOMER_IMPACT, timeout=None)
+        send_message("+923352839515", "-----------Customer Impact Alert-----------")
         all_jobs = resp.json()["Customer Impact Jobs"]
         print(all_jobs)
         job_string = ""
         for k,v in all_jobs.items():
-            job_string += f"Address: {k} Company name: {v['Company name']} Compensation: {v['Compensation']}\n"
+            job_check = await mongo_delete_customer_impact(k)
+            print(job_check)
+            if not job_check:
+                job_insert = await mongo_insert_customer_impact(k, v['Company name'], v['Compensation'])
+                job_string += f"Address: {k} Company name: {v['Company name']} Compensation: {v['Compensation']}\n\n"
         print(job_string)
         send_message("+923352839515", job_string)
 
@@ -70,21 +72,23 @@ async def customer_impact():
     return {"result": "Success"}
 
 
-# @app.on_event("startup")
-# @repeat_every(seconds=5)
-# @app.get("/ishop_ipsos")
 async def ishop_ipsos():
     print("Root route initiated!")
     WORKER_THREAD = True
     async with httpx.AsyncClient() as client:
         resp = await client.get(URL_PROD_ISHOP_IPSOS, timeout=None)
-        # resp = await client.get(URL_PROD_ISHOP_IPSOS, timeout=None)
-        # send_message("+923352839515", "-----------Ishop Ipsos Alert-----------")
+        # resp = await client.get(URL_ISHOP_IPSOS, timeout=None)
+        send_message("+923352839515", "-----------Ishop Ipsos Alert-----------")
         all_jobs = resp.json()["IShop Ipsos Jobs"]
         print(all_jobs)
         job_string = ""
         for k,v in all_jobs.items():
-            job_string += f"Address: {k} Company name: {v['Company name']} Compensation: {v['Compensation']}\n"
+            job_check = await mongo_delete_ishop_ipsos(k)
+            print(job_check)
+            if not job_check:
+                job_insert = await mongo_insert_ishop_ipsos(k, v['Company name'], v['Compensation'])
+                job_string += f"Address: {k} Company name: {v['Company name']} Compensation: {v['Compensation']}\n"
+        print(job_string)
         send_message("+923352839515", job_string)
 
     popped = WORKER_STACK.pop(0)
@@ -97,12 +101,8 @@ async def ishop_ipsos():
 #ADD A RECORD TO MONGODB
 @app.post("/mongoDbPost")
 async def mongo_db_post():
-    doc_shop = collection.insert_one({
-        "iShopIpsos": "False",
-        "customerImpact": "False",
-        "hsBrands": "False",
-        "intelliShop": "False",
-        "iSecretShop": "False",
+    doc_shop = collection["iShopIpsos"].insert_one({
+        'Address': 'Phillips 66-902 SOUNDVIEW PIT STOP INC, 902 SOUNDVIEW AVE, BRONX, NY, 10473, United States', 'Company name': 'Phillips 66', 'Compensation': 'Job Fee: $12.00\nExpenses: $10.00'
     })
 
     return {
@@ -110,15 +110,13 @@ async def mongo_db_post():
     }
 
 #UPDATE MONGODB RECORD
-@app.put("/mongoDbPut")
+@app.post("/mongoDbPut")
 async def mongo_db_put():
     # doc_shop = collection.find(
     #     {"iShopIpsos": "False"}
     # )
-    doc_shop_update = collection.find_one_and_update(
-        {"iShopIpsos": "True"},
-        {"$set": {"iShopIpsos": "False"}}
-    )
+    doc_shop_update = collection["iShopIpsos"].find_one_and_delete({'Address':'Phillips 66-902 SOUNDVIEW PIT STOP INC, 902 SOUNDVIEW AVE, BRONX, NY, 10473, United States'})
+    print(doc_shop_update)
 
     return {
         "success": "Data updated successfully"
